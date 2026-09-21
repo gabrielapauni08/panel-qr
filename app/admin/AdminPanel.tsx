@@ -5,15 +5,15 @@ import QRCode from "qrcode";
 import { CardData, DestType } from "@/lib/types";
 
 const DEST_LABELS: Record<DestType, string> = {
-  google: "Reseña de Google",
-  instagram: "Instagram (usuario)",
-  url: "URL directa",
+  google: "Reseñas de Google",
+  instagram: "Instagram",
+  url: "Enlace personalizado",
 };
 
 const DEST_PLACEHOLDERS: Record<DestType, string> = {
-  google: "ChIJ... o https://g.page/r/...",
-  instagram: "usuario o https://instagram.com/usuario",
-  url: "https://...",
+  google: "Pega aquí el enlace de reseñas de Google",
+  instagram: "Pega aquí el enlace de Instagram",
+  url: "Pega aquí el enlace de destino",
 };
 
 export default function AdminPanel() {
