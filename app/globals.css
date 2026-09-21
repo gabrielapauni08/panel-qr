@@ -152,10 +152,11 @@ label {
 
 .cardhead {
   width: 100%;
-  display: flex;
+  display: grid;
+  grid-template-columns: auto auto 1fr;
   align-items: center;
-  gap: 10px;
-  padding: 14px 16px;
+  gap: 8px;
+  padding: 12px 14px;
   background: transparent;
   border: none;
   color: var(--text);
@@ -164,9 +165,9 @@ label {
 }
 
 .code {
-  font-weight: 700;
+  font-weight: 800;
   font-family: monospace;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .badge {
@@ -177,20 +178,15 @@ label {
 }
 
 .badge.asignada {
-  color: var(--ok);
-  border-color: var(--ok);
-}
-
-.badge.libre {
   color: var(--muted);
 }
 
 .scans {
   margin-left: auto;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--muted);
+  white-space: nowrap;
 }
-
 .cardbody {
   padding: 4px 16px 20px;
   border-top: 1px solid var(--border);
