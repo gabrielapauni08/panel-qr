@@ -59,7 +59,7 @@ const totalScans = cards.reduce((sum, card) => sum + (card.scans || 0), 0);
   return (
     <main className="wrap">
       <header className="topbar">
-        <h1>Panel de Tarjetas</h1>
+<h1>Panel QR</h1>       
         <button className="ghost" onClick={logout}>
           Salir
         </button>
