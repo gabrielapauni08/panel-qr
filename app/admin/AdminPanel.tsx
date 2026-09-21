@@ -65,14 +65,31 @@ const totalScans = cards.reduce((sum, card) => sum + (card.scans || 0), 0);
         </button>
       </header>
 
-      <button className="primary" onClick={createCard}>
-        + Nueva tarjeta
-      </button>
+
+<div className="stats">
+  <div className="stat">
+    <strong>{availableCount}</strong>
+    <span>Disponibles</span>
+  </div>
+
+  <div className="stat">
+    <strong>{activeCount}</strong>
+    <span>Activas</span>
+  </div>
+
+  <div className="stat">
+    <strong>{totalScans}</strong>
+    <span>Escaneos</span>
+  </div>
+</div>
+
+<button className="primary" onClick={createCard}>
+  + Nueva tarjeta
+</button>
+      
 
       {loading ? (
-        <p className="muted">Cargando…</p>
-      ) : cards.length === 0 ? (
-        <p className="muted">Todavía no creaste ninguna tarjeta.</p>
+        
       ) : (
         <ul className="cardlist">
           {cards.map((c) => (
