@@ -170,7 +170,7 @@ function CardRow({
       <button className="cardhead" onClick={onToggle}>
         <span className="code">{card.code}</span>
         <span className={`badge ${card.status}`}>
-          {card.status === "asignada" ? "Asignada" : "Libre"}
+          {card.status === "asignada" ? "Activa" : "Disponible"}
         </span>
         <span className="scans">{card.scans || 0} escaneos</span>
       </button>
