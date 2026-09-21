@@ -21,7 +21,11 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState(true);
   const [openCode, setOpenCode] = useState<string | null>(null);
   const [baseUrl, setBaseUrl] = useState("");
+const availableCount = cards.filter((card) => card.status === "libre").length;
 
+const activeCount = cards.filter((card) => card.status === "asignada").length;
+
+const totalScans = cards.reduce((sum, card) => sum + (card.scans || 0), 0);
   useEffect(() => {
     setBaseUrl(window.location.origin);
     loadCards();
