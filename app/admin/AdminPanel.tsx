@@ -81,7 +81,6 @@ const totalScans = cards.reduce((sum, card) => sum + (card.scans || 0), 0);
     <strong>{totalScans}</strong>
     <span>Escaneos</span>
   </div>
-</div>
 
 <button className="primary" onClick={createCard}>
   + Nueva tarjeta
@@ -89,7 +88,7 @@ const totalScans = cards.reduce((sum, card) => sum + (card.scans || 0), 0);
       
 
       {loading ? (
-        
+      <p className="muted">Cargando...</p>  
       ) : (
         <ul className="cardlist">
           {cards.map((c) => (
