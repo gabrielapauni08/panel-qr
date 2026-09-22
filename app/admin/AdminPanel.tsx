@@ -21,6 +21,8 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState(true);
   const [openCode, setOpenCode] = useState<string | null>(null);
   const [baseUrl, setBaseUrl] = useState("");
+  const [batchCount, setBatchCount] = useState(10);
+const [batchCreating, setBatchCreating] = useState(false);
 const availableCount = cards.filter((card) => card.status === "libre").length;
 
 const activeCount = cards.filter((card) => card.status === "asignada").length;
@@ -50,7 +52,31 @@ const totalScans = cards.reduce((sum, card) => sum + (card.scans || 0), 0);
       alert(err.error || "No se pudo crear la tarjeta");
     }
   }
+async function createBatch() {
+  const count = Math.max(1, Math.min(500, batchCount));
 
+  setBatchCreating(true);
+
+  try {
+    for (let i = 0; i < count; i++) {
+      const res = await fetch("/api/cards", {
+        method: "POST",
+        body: JSON.stringify({}),
+      });
+
+      if (!res.ok) {
+        throw new Error(`No se pudo crear la tarjeta ${i + 1}`);
+      }
+    }
+
+    await loadCards();
+    alert(`Lote de ${count} tarjetas creado correctamente`);
+  } catch (err) {
+    alert(err instanceof Error ? err.message : "No se pudo crear el lote");
+  } finally {
+    setBatchCreating(false);
+  }
+}
   async function logout() {
     await fetch("/api/logout", { method: "POST" });
     window.location.href = "/login";
@@ -85,7 +111,27 @@ const totalScans = cards.reduce((sum, card) => sum + (card.scans || 0), 0);
 <button className="primary" onClick={createCard}>
   + Nueva tarjeta
 </button>
-      
+    <div className="batchbox">
+  <label htmlFor="batchCount">Crear lote de QR</label>
+
+  <input
+  id="batchCount"
+  type="number"
+  min="1"
+  max="500"
+  value={batchCount}
+  onChange={(e) => setBatchCount(Number(e.target.value))}
+/>
+<button
+  className="ghost"
+  type="button"
+  onClick={createBatch}
+  disabled={batchCreating}
+>
+  {batchCreating ? "Generando..." : "Generar lote"}
+</button>
+  </button>
+</div>  
 
       {loading ? (
       <p className="muted">Cargando...</p>  
