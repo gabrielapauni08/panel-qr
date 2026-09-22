@@ -130,7 +130,7 @@ async function createBatch() {
 >
   {batchCreating ? "Generando..." : "Generar lote"}
 </button>
-  </button>
+  
 </div>  
 
       {loading ? (
