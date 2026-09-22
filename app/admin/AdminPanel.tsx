@@ -23,6 +23,7 @@ export default function AdminPanel() {
   const [baseUrl, setBaseUrl] = useState("");
   const [batchCount, setBatchCount] = useState(10);
 const [batchCreating, setBatchCreating] = useState(false);
+  const [lastBatchCodes, setLastBatchCodes] = useState<string[]>([]);
 const availableCount = cards.filter((card) => card.status === "libre").length;
 
 const activeCount = cards.filter((card) => card.status === "asignada").length;
@@ -54,7 +55,7 @@ const totalScans = cards.reduce((sum, card) => sum + (card.scans || 0), 0);
   }
 async function createBatch() {
   const count = Math.max(1, Math.min(500, batchCount));
-
+const createdCodes: string[] = [];
   setBatchCreating(true);
 
   try {
@@ -67,8 +68,10 @@ async function createBatch() {
       if (!res.ok) {
         throw new Error(`No se pudo crear la tarjeta ${i + 1}`);
       }
-    }
-
+    const data = await res.json();
+createdCodes.push(data.card.code);
+}
+    setLastBatchCodes(createdCodes);
     await loadCards();
     alert(`Lote de ${count} tarjetas creado correctamente`);
   } catch (err) {
