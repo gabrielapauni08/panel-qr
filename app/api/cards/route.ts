@@ -3,21 +3,44 @@ import { redis } from "@/lib/redis";
 import { normalizeCode } from "@/lib/codes";
 import { CardData } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET() {
   const codes = (await redis.smembers("cards:index")) as string[];
-  if (!codes.length) return NextResponse.json({ cards: [] });
+
+  if (!codes.length) {
+    return NextResponse.json(
+      { cards: [] },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+        },
+      }
+    );
+  }
 
   const cards = await Promise.all(
-    codes.map((c) => redis.get<CardData>(`card:${c}`))
+    codes.map((code) => redis.get<CardData>(`card:${code}`))
   );
+
   const list = cards.filter(Boolean) as CardData[];
+
   list.sort((a, b) => b.createdAt - a.createdAt);
 
-  return NextResponse.json({ cards: list });
+  return NextResponse.json(
+    { cards: list },
+    {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+      },
+    }
+  );
 }
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
+
   let code: string = body.code ? normalizeCode(body.code) : "";
 
   if (!code) {
@@ -26,11 +49,16 @@ export async function POST(req: NextRequest) {
   }
 
   const exists = await redis.get(`card:${code}`);
+
   if (exists) {
-    return NextResponse.json({ error: "Ese código ya existe" }, { status: 409 });
+    return NextResponse.json(
+      { error: "Ese código ya existe" },
+      { status: 409 }
+    );
   }
 
   const now = Date.now();
+
   const card: CardData = {
     code,
     localName: "",
@@ -38,6 +66,7 @@ export async function POST(req: NextRequest) {
     destValue: "",
     destUrl: "",
     status: "libre",
+    prepStatus: "qr_listo",
     scans: 0,
     createdAt: now,
     updatedAt: now,
