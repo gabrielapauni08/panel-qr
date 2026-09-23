@@ -32,17 +32,13 @@ export async function PUT(
   const destType: DestType = body.destType ?? existing.destType;
   const destValue: string = body.destValue ?? existing.destValue;
 
-  const allowedPrepStatuses: PrepStatus[] = [
-    "qr_listo",
-    "nfc_pendiente",
-    "nfc_listo",
-    "lista_venta",
-  ];
-
-  const prepStatus: PrepStatus =
-    allowedPrepStatuses.includes(body.prepStatus)
-      ? body.prepStatus
-      : existing.prepStatus ?? "qr_listo";
+  const prepStatus =
+  body.prepStatus === "qr_listo" ||
+  body.prepStatus === "nfc_pendiente" ||
+  body.prepStatus === "nfc_listo" ||
+  body.prepStatus === "lista_venta"
+    ? body.prepStatus
+    : existing.prepStatus ?? "qr_listo";
 
   const destUrl =
     destValue.trim() !== ""
