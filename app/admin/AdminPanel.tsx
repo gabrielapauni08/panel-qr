@@ -58,27 +58,43 @@ const totalScans = cards.reduce((sum, card) => sum + (card.scans || 0), 0);
 async function createBatch() {
   const count = Math.max(1, Math.min(500, batchCount));
   const start = Math.max(1, batchStart);
-const createdCodes: string[] = [];
 
-setBatchCreating(true);
+  const requestedCodes = Array.from(
+    { length: count },
+    (_, i) => `re-${String(start + i).padStart(3, "0")}`
+  );
 
-try {
-  for (let i = 0; i < count; i++) {
-  const code = `re-${String(start + i).padStart(3, "0")}`;
+  const duplicate = requestedCodes.find((code) =>
+    cards.some((card) => card.code === code)
+  );
 
-  const res = await fetch("/api/cards", {
-    method: "POST",
-    body: JSON.stringify({ code }),
-  });
+  if (duplicate) {
+    alert(`El código ${duplicate} ya existe. Elige otra numeración.`);
+    return;
+  }
+
+  const createdCodes: string[] = [];
+  setBatchCreating(true);
+
+  try {
+    for (const code of requestedCodes) {
+      const res = await fetch("/api/cards", {
+        method: "POST",
+        body: JSON.stringify({ code }),
+      });
 
       if (!res.ok) {
-        throw new Error(`No se pudo crear la tarjeta ${i + 1}`);
+        const err = await res.json();
+        throw new Error(err.error || `No se pudo crear ${code}`);
       }
-    const data = await res.json();
-createdCodes.push(data.card.code);
-}
+
+      const data = await res.json();
+      createdCodes.push(data.card.code);
+    }
+
     setLastBatchCodes(createdCodes);
     await loadCards();
+
     alert(`Lote de ${count} tarjetas creado correctamente`);
   } catch (err) {
     alert(err instanceof Error ? err.message : "No se pudo crear el lote");
