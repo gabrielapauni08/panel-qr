@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
+import JSZip from "jszip";
 import { CardData, DestType } from "@/lib/types";
 
 const DEST_LABELS: Record<DestType, string> = {
@@ -80,6 +81,37 @@ createdCodes.push(data.card.code);
     setBatchCreating(false);
   }
 }
+async function downloadLastBatch() {
+  if (lastBatchCodes.length === 0) {
+    alert("Primero crea un lote de tarjetas");
+    return;
+  }
+
+  const zip = new JSZip();
+
+  for (const code of lastBatchCodes) {
+    const url = `${baseUrl}/r/${code}`;
+
+    const dataUrl = await QRCode.toDataURL(url, {
+      margin: 1,
+      width: 1000,
+    });
+
+    const base64 = dataUrl.split(",")[1];
+    zip.file(`${code}.png`, base64, { base64: true });
+  }
+
+  const blob = await zip.generateAsync({ type: "blob" });
+  const downloadUrl = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = downloadUrl;
+  a.download = `lote-qr-${lastBatchCodes[0]}-${lastBatchCodes[lastBatchCodes.length - 1]}.zip`;
+  a.click();
+
+  URL.revokeObjectURL(downloadUrl);
+}
+  
   async function logout() {
     await fetch("/api/logout", { method: "POST" });
     window.location.href = "/login";
@@ -133,7 +165,14 @@ createdCodes.push(data.card.code);
 >
   {batchCreating ? "Generando..." : "Generar lote"}
 </button>
-  
+  <button
+  className="ghost"
+  type="button"
+  onClick={downloadLastBatch}
+  disabled={lastBatchCodes.length === 0}
+>
+  Descargar lote
+</button>
 </div>  
 
       {loading ? (
