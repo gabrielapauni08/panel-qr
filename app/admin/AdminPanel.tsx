@@ -57,15 +57,19 @@ const totalScans = cards.reduce((sum, card) => sum + (card.scans || 0), 0);
   }
 async function createBatch() {
   const count = Math.max(1, Math.min(500, batchCount));
+  const start = Math.max(1, batchStart);
 const createdCodes: string[] = [];
-  setBatchCreating(true);
 
-  try {
-    for (let i = 0; i < count; i++) {
-      const res = await fetch("/api/cards", {
-        method: "POST",
-        body: JSON.stringify({}),
-      });
+setBatchCreating(true);
+
+try {
+  for (let i = 0; i < count; i++) {
+  const code = `re-${String(start + i).padStart(3, "0")}`;
+
+  const res = await fetch("/api/cards", {
+    method: "POST",
+    body: JSON.stringify({ code }),
+  });
 
       if (!res.ok) {
         throw new Error(`No se pudo crear la tarjeta ${i + 1}`);
