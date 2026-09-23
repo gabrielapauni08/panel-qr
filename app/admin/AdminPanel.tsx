@@ -177,6 +177,7 @@ async function downloadLastBatch() {
   max="500"
   value={batchCount}
   onChange={(e) => setBatchCount(Number(e.target.value))}
+    />
     <label htmlFor="batchStart">Empezar desde</label>
 
 <input
@@ -185,7 +186,7 @@ async function downloadLastBatch() {
   min="1"
   value={batchStart}
   onChange={(e) => setBatchStart(Number(e.target.value))}
-/>
+
 />
 <button
   className="ghost"
