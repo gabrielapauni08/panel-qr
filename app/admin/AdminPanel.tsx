@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import JSZip from "jszip";
-import { CardData, DestType } from "@/lib/types";
+import { CardData, DestType, PrepStatus } from "@/lib/types";
 
 const DEST_LABELS: Record<DestType, string> = {
   google: "Reseñas de Google",
@@ -242,6 +242,9 @@ function CardRow({
   const [localName, setLocalName] = useState(card.localName);
   const [destType, setDestType] = useState<DestType>(card.destType);
   const [destValue, setDestValue] = useState(card.destValue);
+  const [prepStatus, setPrepStatus] = useState<PrepStatus>(
+    card.prepStatus ?? "qr_listo"
+  );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [qr, setQr] = useState<string | null>(null);
@@ -257,11 +260,19 @@ function CardRow({
   async function save() {
     setSaving(true);
     setError(null);
+
     const res = await fetch(`/api/cards/${card.code}`, {
       method: "PUT",
-      body: JSON.stringify({ localName, destType, destValue }),
+      body: JSON.stringify({
+        localName,
+        destType,
+        destValue,
+        prepStatus,
+      }),
     });
+
     setSaving(false);
+
     if (res.ok) {
       onSaved();
     } else {
@@ -272,12 +283,17 @@ function CardRow({
 
   async function remove() {
     if (!confirm(`¿Borrar la tarjeta ${card.code}?`)) return;
-    await fetch(`/api/cards/${card.code}`, { method: "DELETE" });
+
+    await fetch(`/api/cards/${card.code}`, {
+      method: "DELETE",
+    });
+
     onSaved();
   }
 
   function downloadQr() {
     if (!qr) return;
+
     const a = document.createElement("a");
     a.href = qr;
     a.download = `qr-${card.code}.png`;
@@ -288,9 +304,11 @@ function CardRow({
     <li className="card">
       <button className="cardhead" onClick={onToggle}>
         <span className="code">{card.code}</span>
+
         <span className={`badge ${card.status}`}>
           {card.status === "asignada" ? "Activa" : "Disponible"}
         </span>
+
         <span className="scans">{card.scans || 0} escaneos</span>
       </button>
 
@@ -304,7 +322,10 @@ function CardRow({
           />
 
           <label>Tipo de destino</label>
-          <select value={destType} onChange={(e) => setDestType(e.target.value as DestType)}>
+          <select
+            value={destType}
+            onChange={(e) => setDestType(e.target.value as DestType)}
+          >
             <option value="google">Reseña de Google</option>
             <option value="instagram">Instagram</option>
             <option value="url">URL directa</option>
@@ -317,28 +338,63 @@ function CardRow({
             placeholder={DEST_PLACEHOLDERS[destType]}
           />
 
+          <label>Preparación de tarjeta</label>
+          <select
+            value={prepStatus}
+            onChange={(e) =>
+              setPrepStatus(e.target.value as PrepStatus)
+            }
+          >
+            <option value="qr_listo">QR listo</option>
+            <option value="nfc_pendiente">NFC pendiente</option>
+            <option value="nfc_listo">NFC listo</option>
+            <option value="lista_venta">Lista para venta</option>
+          </select>
+
           {error && <p className="err">{error}</p>}
 
           <div className="row">
-            <button className="primary" onClick={save} disabled={saving} style={{ marginBottom: 0 }}>
-              {saving ? "Guardando…" : "Asignar esta tarjeta"}
+            <button
+              className="primary"
+              onClick={save}
+              disabled={saving}
+              style={{ marginBottom: 0 }}
+            >
+              {saving ? "Guardando..." : "Asignar esta tarjeta"}
             </button>
+
             {card.destUrl && (
-              <a className="ghost" href={card.destUrl} target="_blank" rel="noreferrer">
+              <a
+                className="ghost"
+                href={card.destUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
                 Probar destino
               </a>
             )}
           </div>
 
           <div className="qrbox">
-            <p className="muted">Este QR apunta a: {scanUrl}</p>
-            {qr && <img src={qr} alt={`QR ${card.code}`} width={160} height={160} />}
+            <p className="muted">
+              Este QR apunta a: {scanUrl}
+            </p>
+
             {qr && (
-              <div>
-                <button className="ghost" onClick={downloadQr}>
-                  Descargar QR
-                </button>
-              </div>
+              <>
+                <img
+                  src={qr}
+                  alt={`QR ${card.code}`}
+                  width={160}
+                  height={160}
+                />
+
+                <div>
+                  <button className="ghost" onClick={downloadQr}>
+                    Descargar QR
+                  </button>
+                </div>
+              </>
             )}
           </div>
 
