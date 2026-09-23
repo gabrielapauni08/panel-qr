@@ -22,6 +22,7 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState(true);
   const [openCode, setOpenCode] = useState<string | null>(null);
   const [baseUrl, setBaseUrl] = useState("");
+  const [batchStart, setBatchStart] = useState(1);
   const [batchCount, setBatchCount] = useState(10);
 const [batchCreating, setBatchCreating] = useState(false);
   const [lastBatchCodes, setLastBatchCodes] = useState<string[]>([]);
@@ -156,6 +157,15 @@ async function downloadLastBatch() {
   max="500"
   value={batchCount}
   onChange={(e) => setBatchCount(Number(e.target.value))}
+    <label htmlFor="batchStart">Empezar desde</label>
+
+<input
+  id="batchStart"
+  type="number"
+  min="1"
+  value={batchStart}
+  onChange={(e) => setBatchStart(Number(e.target.value))}
+/>
 />
 <button
   className="ghost"
