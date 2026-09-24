@@ -360,7 +360,7 @@ function CardRow({
               disabled={saving}
               style={{ marginBottom: 0 }}
             >
-              {saving ? "Guardando..." : "Asignar esta tarjeta"}
+              {saving ? "Guardando..." : "Guardar cambios"}
             </button>
 
             {card.destUrl && (
