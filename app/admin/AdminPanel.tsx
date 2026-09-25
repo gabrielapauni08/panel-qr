@@ -340,6 +340,66 @@ async function writeNfc() {
     setNfcWriting(false);
   }
 }
+  async function eraseNfc() {
+  setError(null);
+
+  if (!confirm("¿Seguro que quieres borrar los datos de este NFC?")) {
+    return;
+  }
+
+  const NDEFReaderClass = (window as any).NDEFReader;
+
+  if (!NDEFReaderClass) {
+    setError(
+      "Este navegador no permite borrar NFC. Abre la app en Chrome desde Android."
+    );
+    return;
+  }
+
+  try {
+    setNfcWriting(true);
+
+    const ndef = new NDEFReaderClass();
+
+    await ndef.write({
+      records: [
+        {
+          recordType: "empty",
+        },
+      ],
+    });
+
+    setPrepStatus("nfc_pendiente");
+
+    const res = await fetch(`/api/cards/${card.code}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        localName,
+        destType,
+        destValue,
+        prepStatus: "nfc_pendiente",
+      }),
+    });
+
+    if (!res.ok) {
+      throw new Error(
+        "El NFC se borró, pero no se pudo actualizar el estado."
+      );
+    }
+
+    alert(`NFC ${card.code} borrado correctamente`);
+
+    onSaved();
+  } catch (err) {
+    setError(
+      err instanceof Error
+        ? err.message
+        : "No se pudo borrar el NFC."
+    );
+  } finally {
+    setNfcWriting(false);
+  }
+}
   async function remove() {
     if (!confirm(`¿Borrar la tarjeta ${card.code}?`)) return;
 
@@ -428,7 +488,13 @@ async function writeNfc() {
 >
   {nfcWriting ? "Acerca el NFC..." : "Grabar NFC"}
 </button>
-
+<button
+  type="button"
+  onClick={eraseNfc}
+  disabled={nfcWriting}
+>
+  Borrar NFC
+</button>
             {card.destUrl && (
               <a
                 className="ghost"
