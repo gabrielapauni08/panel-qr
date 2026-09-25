@@ -77,3 +77,23 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ card });
 }
+export async function DELETE() {
+  const codes = (await redis.smembers("cards:index")) as string[];
+
+  for (const code of codes) {
+    await redis.del(`card:${code}`);
+  }
+
+  for (let i = 1; i <= 100; i++) {
+    const code = `re-${String(i).padStart(3, "0")}`;
+    await redis.del(`card:${code}`);
+  }
+
+  await redis.del("cards:index");
+  await redis.del("cards:counter");
+
+  return NextResponse.json({
+    ok: true,
+    message: "Tarjetas de prueba eliminadas y contador reiniciado",
+  });
+}
