@@ -245,6 +245,7 @@ function CardRow({
   const [prepStatus, setPrepStatus] = useState<PrepStatus>(
     card.prepStatus ?? "qr_listo"
   );
+  const [nfcWriting, setNfcWriting] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [qr, setQr] = useState<string | null>(null);
@@ -280,7 +281,65 @@ function CardRow({
       setError(err.error || "No se pudo guardar");
     }
   }
+async function writeNfc() {
+  setError(null);
 
+  const NDEFReaderClass = (window as any).NDEFReader;
+
+  if (!NDEFReaderClass) {
+    setError(
+      "Este navegador no permite grabar NFC. Abre la app en Chrome desde Android."
+    );
+    return;
+  }
+
+  try {
+    setNfcWriting(true);
+
+    const url = `${baseUrl}/r/${card.code}`;
+
+    const ndef = new NDEFReaderClass();
+
+    await ndef.write({
+      records: [
+        {
+          recordType: "url",
+          data: url,
+        },
+      ],
+    });
+
+    const res = await fetch(`/api/cards/${card.code}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        localName,
+        destType,
+        destValue,
+        prepStatus: "nfc_listo",
+      }),
+    });
+
+    if (!res.ok) {
+      throw new Error(
+        "El NFC se grabó, pero no se pudo actualizar el estado."
+      );
+    }
+
+    setPrepStatus("nfc_listo");
+
+    alert(`NFC ${card.code} grabado correctamente`);
+
+    onSaved();
+  } catch (err) {
+    setError(
+      err instanceof Error
+        ? err.message
+        : "No se pudo grabar el NFC."
+    );
+  } finally {
+    setNfcWriting(false);
+  }
+}
   async function remove() {
     if (!confirm(`¿Borrar la tarjeta ${card.code}?`)) return;
 
@@ -362,6 +421,13 @@ function CardRow({
             >
               {saving ? "Guardando..." : "Guardar cambios"}
             </button>
+            <button
+  type="button"
+  onClick={writeNfc}
+  disabled={nfcWriting}
+>
+  {nfcWriting ? "Acerca el NFC..." : "Grabar NFC"}
+</button>
 
             {card.destUrl && (
               <a
