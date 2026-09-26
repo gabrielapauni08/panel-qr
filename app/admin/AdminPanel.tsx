@@ -56,29 +56,6 @@ const totalScans = cards.reduce((sum, card) => sum + (card.scans || 0), 0);
     }
   }
 
-  async function resetTestCards() {
-  const ok = confirm(
-    "¿Seguro que quieres borrar todas las tarjetas de prueba y reiniciar desde re-001?"
-  );
-
-  if (!ok) return;
-
-  const res = await fetch("/api/cards", {
-    method: "DELETE",
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    alert(data.error || "No se pudo reiniciar");
-    return;
-  }
-
-  setLastBatchCodes([]);
-  await loadCards();
-
-  alert("Pruebas eliminadas. Ya puedes empezar desde re-001.");
-}
   async function createBatch() {
   const count = Math.max(1, Math.min(500, batchCount));
   const start = Math.max(1, batchStart);
@@ -228,13 +205,7 @@ async function downloadLastBatch() {
 >
   Descargar lote
 </button>
-      <button
-  className="ghost"
-  type="button"
-  onClick={resetTestCards}
->
-  Reiniciar pruebas
-</button>
+  
 </div>  
 
       {loading ? (
