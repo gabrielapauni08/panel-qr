@@ -262,6 +262,27 @@ label {
     font-size: 22px;
   }
 
+  input,
+select,
+textarea {
+  background: #ffffff;
+  color: #1f2937;
+  border: 1px solid #dbe3ee;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #6b7280;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
   .stat span {
     font-size: 11px;
   }
