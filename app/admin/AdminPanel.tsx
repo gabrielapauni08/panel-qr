@@ -424,7 +424,10 @@ async function writeNfc() {
   return (
     <li className="card">
       <button className="cardhead" onClick={onToggle}>
-        <span className="code">{card.code}</span>
+        <div>
+  <strong>{card.localName || "Sin asignar"}</strong>
+  <div className="code">{card.code}</div>
+</div>
 
         <span className={`badge ${card.status}`}>
           {card.status === "asignada" ? "Activa" : "Disponible"}
@@ -435,11 +438,11 @@ async function writeNfc() {
 
       {open && (
         <div className="cardbody">
-          <label>Nombre del local</label>
+         <label>Nombre del negocio</label>
           <input
             value={localName}
             onChange={(e) => setLocalName(e.target.value)}
-            placeholder="Café Rivas"
+            placeholder="Ej. Tacos , Barbería "
           />
 
           <label>Tipo de destino</label>
